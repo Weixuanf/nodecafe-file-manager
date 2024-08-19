@@ -1,11 +1,26 @@
+import asyncio
+import server
+from aiohttp import web
+import folder_paths
+import shutil
+import os
+import subprocess
+import os
+from .service.model_manager.model_installer import *
 import logging
 import os
-
 import yaml
-
 import folder_paths
 
+
+WEB_DIRECTORY = "ui/dist"
+NODE_CLASS_MAPPINGS = {}
+__all__ = ['NODE_CLASS_MAPPINGS']
+version = "V1.0.0"
+print(f"🦄🦄Loading: Model Manager ({version})")
+
 comfy_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 print(f"🗂️Loading: Extra Model Folder Helper", comfy_path)
 def load_extra_path_config(yaml_path):
     if not os.path.exists(yaml_path):
