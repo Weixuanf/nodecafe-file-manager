@@ -24,7 +24,6 @@ export default defineConfig(({ mode }) => {
           input: "/src/main.tsx",
         },
         output: {
-          // Provide global variables to use in the UMD build for externalized deps
           globals: {
             Litegraph: "LiteGraph",
           },

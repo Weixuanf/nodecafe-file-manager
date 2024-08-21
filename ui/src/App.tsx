@@ -11,7 +11,7 @@ import ProfileTopbar from "./user-manager/ProfileTopbar";
 import { ComfyUser } from "./type/dbTypes";
 import Flex from "./components/ui/Flex";
 const ModelManagerTopbar = lazy(
-  () => import("./model-manager/ModelManagerTopbar"),
+  () => import("./model-manager/ModelManagerTopbar")
 );
 
 const topMenu = document.getElementsByClassName("comfyui-menu").item(0);
@@ -48,8 +48,6 @@ function App() {
     <SWRConfig value={{ provider: swrLocalStorageProvider }}>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <div className="tailwind dark">
-          {leftMenu &&
-            ReactDOM.createPortal(<WorkflowManagerTopbar />, leftMenu)}
           {middleMenu &&
             ReactDOM.createPortal(
               <div className="tailwind dark">
@@ -57,15 +55,7 @@ function App() {
                   <ModelManagerTopbar className="tailwind dark" />
                 </Suspense>
               </div>,
-              middleMenu,
-            )}
-          {myQueueButtonDiv &&
-            ReactDOM.createPortal(
-              <Flex className="items-center gap-2">
-                <JobManagerTopbar />
-                <ProfileTopbar />
-              </Flex>,
-              myQueueButtonDiv,
+              middleMenu
             )}
         </div>
       </ThemeProvider>

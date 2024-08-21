@@ -1,31 +1,22 @@
-export async function fetchListModels(machineID: string): Promise<Record<
+import { fetchApi } from "@/utils/utils";
+
+export async function fetchListFiles(path: string): Promise<Record<
   string,
   {
     sizeB: number;
     sizeKB: number;
   }
 > | null> {
-  console.log(machineID);
-  if (!machineID) {
-    console.error("Machine ID is missing");
-    return null;
-  }
-  return await fetch("/api/machine/listMachineModels?machineID=" + machineID)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("fetch list mode", data);
-      return data?.output?.data;
-    });
+  return await fetchApi("/nc_manager/list_files?path=" + path).then((res) =>
+    res.json()
+  );
 }
 
-export async function installModels(
-  machineID: string,
-  model: {
-    name: string;
-    folder: string;
-    url: string;
-  },
-): Promise<{
+export async function installModels(model: {
+  name: string;
+  folder: string;
+  url: string;
+}): Promise<{
   data?: {
     id: string;
     status: "IN_QUEUE";
@@ -38,7 +29,6 @@ export async function installModels(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      machineID,
       deps: {
         [model.name]: {
           folder: model.folder,

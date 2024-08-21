@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 export default function CustomDrawer({
   onClose,
   children,
@@ -7,7 +9,7 @@ export default function CustomDrawer({
   children?: React.ReactNode;
   className?: string;
 }) {
-  return (
+  return createPortal(
     <>
       <div
         onClick={onClose}
@@ -32,6 +34,7 @@ export default function CustomDrawer({
       >
         {children}
       </div>
-    </>
+    </>,
+    document.body // Portal to body
   );
 }

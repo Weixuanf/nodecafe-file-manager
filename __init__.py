@@ -17,29 +17,45 @@ WEB_DIRECTORY = "ui/dist"
 NODE_CLASS_MAPPINGS = {}
 __all__ = ['NODE_CLASS_MAPPINGS']
 version = "V1.0.0"
-print(f"🦄🦄Loading: Model Manager ({version})")
+print(f"🦄🦄Loading: Nodecafe File Manager ({version})")
 
-comfy_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+comfy_path = os.path.dirname(folder_paths.__file__)
+manager_path = os.path.join(os.path.dirname(__file__))
+dist_path = os.path.join(manager_path, 'ui/dist')
+if os.path.exists(dist_path):
+    server.PromptServer.instance.app.add_routes([
+        web.static('/model_manager_dist/', dist_path),
+    ])
+else:
+    print(f"🦄🦄🔴🔴Error: Web directory not found: {dist_path}")
 
-print(f"🗂️Loading: Extra Model Folder Helper", comfy_path)
-def load_extra_path_config(yaml_path):
-    if not os.path.exists(yaml_path):
-        logging.warning(f"Extra model paths config file not found: {yaml_path}")
-        return
-    with open(yaml_path, 'r') as stream:
-        config = yaml.safe_load(stream)
-    for c in config:
-        conf = config[c]
-        if conf is None:
-            continue
-        base_path = None
-        if "base_path" in conf:
-            base_path = conf.pop("base_path")
-            # list all direct folder child of base_path
-            for folder in os.listdir(base_path):
-                full_path = os.path.join(base_path, folder)
-                if os.path.isdir(full_path):
-                    logging.info("Adding extra model path {} {}".format(folder, full_path))
-                    folder_paths.add_model_folder_path(folder, full_path)
+ignore_folders = {".git", ".idea", "__pycache__", "node_modules", "dist", "build", "venv", "env", "temp", "tmp", "logs", "log", "data", "ui", "ui_dist", "dist"}
 
-load_extra_path_config(os.path.join(comfy_path, "extra_model_paths.yaml"))
+@server.PromptServer.instance.routes.get('/nc_manager/list_files')
+def list_files(request):
+    path = request.query.get("path", 'comfyui')
+    directory = comfy_path if path == 'comfyui' else path
+    files = {}
+
+    def traverse_directory(dir_path):
+        with os.scandir(dir_path) as entries:
+            for entry in entries:
+                if entry.name.startswith("."):
+                    continue
+                if entry.is_dir(follow_symlinks=False):
+                    # Check if the directory should be ignored
+                    if entry.name in ignore_folders:
+                        continue
+                    # Recursively traverse subdirectories
+                    traverse_directory(entry.path)
+                elif entry.is_file(follow_symlinks=False):
+                    relative_path = os.path.relpath(entry.path, directory)
+                    size_bytes = entry.stat().st_size
+                    size_kb = size_bytes / 1024
+                    files[relative_path] = {
+                        "sizeB": size_bytes,
+                        "sizeKB": size_kb,
+                    }
+
+    traverse_directory(directory)
+    return web.json_response(files, content_type='application/json')

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import CustomDrawer from "@/components/ui/CustomDrawer";
 import Flex from "@/components/ui/Flex";
 import { IconRefresh, IconX } from "@tabler/icons-react";
-import { fetchListModels } from "./ModelManagerApi";
+import { fetchListFiles } from "./ModelManagerApi";
 import { InstallModelDialog } from "./InstallModelDialog";
 import ModelsListFileTree, { FileNode } from "./ModelsListFileTree";
 import { convertToTree } from "./fileTreeUtils";
@@ -18,13 +18,6 @@ export default function ModelManagerDrawer({
   const [openInstallModel, setOpenInstallModel] = useState(false);
   const cacheKey = "machine_models_tree##" + api.machine?.id;
 
-  const [models, setModels] = useState<FileNode[]>(() => {
-    const cache = localStorage.getItem(cacheKey);
-    if (cache) {
-      return JSON.parse(cache);
-    }
-    return [];
-  });
   // useEffect(() => {
   //   window.addEventListener("get_machine_workflow", (e: any) => {
   //     setModels(getTreeFromSnapshot());
@@ -33,7 +26,7 @@ export default function ModelManagerDrawer({
   const onRefresh = async () => {
     setRefreshing(true);
     console.log(api.machine);
-    const res = await fetchListModels(api.machine?.id);
+    const res = await fetchListFiles("comfyui");
     console.log("res", res);
     if (!res) {
       setRefreshing(false);
@@ -47,16 +40,26 @@ export default function ModelManagerDrawer({
     localStorage.setItem(cacheKey, JSON.stringify(tree));
   };
 
+  const [models, setModels] = useState<FileNode[]>(() => {
+    const cache = localStorage.getItem(cacheKey);
+    if (cache) {
+      return JSON.parse(cache);
+    } else {
+      onRefresh();
+    }
+    return [];
+  });
+
   return (
     <>
       <CustomDrawer
         onClose={onClose}
-        className="w-full md:!w-[500px] overflow-y-auto"
+        className="w-full md:!w-[500px] overflow-y-auto z-[1000]"
       >
         <div className="gap-5 p-5">
           <Flex className="justify-between mb-5">
             <Flex className="gap-5 items-center">
-              <h2 className="font-medium text-lg">My Models</h2>
+              <h2 className="font-medium text-lg">Files</h2>
               <Button size="sm" onClick={onRefresh} isLoading={refreshing}>
                 <IconRefresh className="h-4 w-4" />
               </Button>

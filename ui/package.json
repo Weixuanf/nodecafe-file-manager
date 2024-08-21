@@ -1,5 +1,5 @@
 {
-  "name": "workspace-manager",
+  "name": "model-manager",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -27,6 +27,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/node": "^22.4.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.15.0",

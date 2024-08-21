@@ -9,7 +9,9 @@ import { injectCSS } from "./injectCSS";
 ReactDOM.createRoot(topbar).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 );
+// @ts-ignore
+const api = window.comfyAPI.api.api;
 
-injectCSS("/web/extensions/workspace-manager/dist/input.css");
+injectCSS(api.api_base + "/model_manager_dist/input.css");
