@@ -25,3 +25,11 @@ export const comfyModelFolderNames = [
 ] as const;
 
 export type ComfyModelFolderName = (typeof comfyModelFolderNames)[number];
+
+export type FileNode = {
+  name: string;
+  path: string;
+  size?: string;
+  children?: FileNode[];
+};
+export const SYS_SEP = "/";

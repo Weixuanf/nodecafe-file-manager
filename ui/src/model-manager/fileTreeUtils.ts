@@ -1,4 +1,5 @@
 type FileNode = {
+  path: string;
   name: string;
   size?: string;
   children?: FileNode[];
@@ -21,7 +22,7 @@ const formatSize = (sizeB: number): string => {
 };
 
 export const convertToTree = (
-  data: Record<string, { sizeB: number; sizeKB?: number }>,
+  data: Record<string, { sizeB: number; sizeKB?: number }>
 ): FileNode[] => {
   const root: Record<string, any> = {};
 
@@ -31,10 +32,12 @@ export const convertToTree = (
     }
     const parts = path.split("/");
     let currentLevel = root;
+    let currentPath = "";
 
     parts.forEach((part, index) => {
+      currentPath += (currentPath ? "/" : "") + part;
       if (!currentLevel[part]) {
-        currentLevel[part] = { name: part, children: {} };
+        currentLevel[part] = { path: currentPath, name: part, children: {} };
       }
 
       if (index === parts.length - 1) {
@@ -47,6 +50,7 @@ export const convertToTree = (
 
   const convertToArray = (node: Record<string, any>): FileNode[] => {
     return Object.values(node).map((n: any) => ({
+      path: n.path,
       name: n.name,
       size: n.size,
       children:

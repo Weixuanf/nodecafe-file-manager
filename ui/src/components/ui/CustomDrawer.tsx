@@ -28,7 +28,7 @@ export default function CustomDrawer({
           position: "fixed",
           top: 0,
           left: 0,
-          zIndex: 10009,
+          zIndex: 10002,
         }}
         className={`bg-zinc-950 ${className}`}
       >

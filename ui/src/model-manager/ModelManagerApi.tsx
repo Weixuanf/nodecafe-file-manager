@@ -12,9 +12,8 @@ export async function fetchListFiles(path: string): Promise<Record<
   );
 }
 
-export async function installModels(model: {
-  name: string;
-  folder: string;
+export async function uploadFile(model: {
+  path: string;
   url: string;
 }): Promise<{
   data?: {
@@ -23,19 +22,12 @@ export async function installModels(model: {
   };
   error?: string;
 }> {
-  return await fetch("/api/machine/installMachineModels", {
+  return await fetch("/nc_manager/upload_file", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      deps: {
-        [model.name]: {
-          folder: model.folder,
-          url: model.url,
-        },
-      },
-    }),
+    body: JSON.stringify({}),
   })
     .then((res) => res.json())
     .then((data) => {

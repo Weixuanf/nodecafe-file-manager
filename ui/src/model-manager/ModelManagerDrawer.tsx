@@ -6,8 +6,9 @@ import Flex from "@/components/ui/Flex";
 import { IconRefresh, IconX } from "@tabler/icons-react";
 import { fetchListFiles } from "./ModelManagerApi";
 import { InstallModelDialog } from "./InstallModelDialog";
-import ModelsListFileTree, { FileNode } from "./ModelsListFileTree";
+import ModelsListFileTree from "./ModelsListFileTree";
 import { convertToTree } from "./fileTreeUtils";
+import { FileNode } from "./types";
 
 export default function ModelManagerDrawer({
   onClose,
@@ -26,27 +27,25 @@ export default function ModelManagerDrawer({
   const onRefresh = async () => {
     setRefreshing(true);
     console.log(api.machine);
-    const res = await fetchListFiles("comfyui");
-    console.log("res", res);
-    if (!res) {
-      setRefreshing(false);
+    const comfyuiModels = await fetchListFiles("models");
+    const extraModels = await fetchListFiles("extra_models");
+    setRefreshing(false);
+
+    if (!comfyuiModels || !extraModels) {
       return;
     }
 
-    const tree = convertToTree(res);
-    console.log("tree", tree);
-    setModels(tree);
+    const comfyuiModelsTree = convertToTree(comfyuiModels);
+    const extraModelsTree = convertToTree(extraModels);
+    setModels([
+      { name: "ComfyUI/models", children: comfyuiModelsTree, path: "models" },
+      { name: "Extra Models", children: extraModelsTree, path: "extra_models" },
+    ]);
     setRefreshing(false);
-    localStorage.setItem(cacheKey, JSON.stringify(tree));
   };
 
   const [models, setModels] = useState<FileNode[]>(() => {
-    const cache = localStorage.getItem(cacheKey);
-    if (cache) {
-      return JSON.parse(cache);
-    } else {
-      onRefresh();
-    }
+    onRefresh();
     return [];
   });
 
@@ -54,7 +53,7 @@ export default function ModelManagerDrawer({
     <>
       <CustomDrawer
         onClose={onClose}
-        className="w-full md:!w-[500px] overflow-y-auto z-[1000]"
+        className="w-full md:!w-[500px] overflow-y-auto"
       >
         <div className="gap-5 p-5">
           <Flex className="justify-between mb-5">
@@ -74,9 +73,6 @@ export default function ModelManagerDrawer({
           <ModelsListFileTree tree={models} />
         </div>
       </CustomDrawer>
-      {openInstallModel && (
-        <InstallModelDialog onClose={() => setOpenInstallModel(false)} />
-      )}
     </>
   );
 }

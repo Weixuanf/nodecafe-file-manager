@@ -7,12 +7,8 @@ import {
   IconDotsVertical,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
-
-export type FileNode = {
-  name: string;
-  size?: string;
-  children?: FileNode[];
-};
+import { InstallModelDialog } from "./InstallModelDialog";
+import { FileNode, SYS_SEP } from "./types";
 
 export default function ModelsListFileTree({ tree }: { tree: FileNode[] }) {
   return (
@@ -25,7 +21,7 @@ export default function ModelsListFileTree({ tree }: { tree: FileNode[] }) {
               <p className="text-gray-400">{file.size}</p>
             </Flex>
           ) : (
-            <FolderNode node={file} />
+            <FolderItem node={file} />
           )}
         </div>
       ))}
@@ -33,9 +29,10 @@ export default function ModelsListFileTree({ tree }: { tree: FileNode[] }) {
   );
 }
 
-function FolderNode({ node }: { node: FileNode }) {
+function FolderItem({ node }: { node: FileNode }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [openUploadFile, setOpenUploadFile] = useState(false);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -46,7 +43,11 @@ function FolderNode({ node }: { node: FileNode }) {
   };
 
   return (
-    <div>
+    <div
+      onMouseLeave={() => {
+        setIsMenuVisible(false);
+      }}
+    >
       <Flex
         className="items-center justify-between gap-1 cursor-pointer py-2 text-white"
         onClick={toggleExpand}
@@ -86,12 +87,18 @@ function FolderNode({ node }: { node: FileNode }) {
           <div className="absolute right-0 bg-white border border-gray-200 shadow-lg rounded-md py-2">
             <button
               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => alert("Upload File clicked")}
+              onClick={() => setOpenUploadFile(true)}
             >
               Upload File
             </button>
           </div>
         </div>
+      )}
+      {openUploadFile && (
+        <InstallModelDialog
+          onClose={() => setOpenUploadFile(false)}
+          path={node.path}
+        />
       )}
     </div>
   );

@@ -31,10 +31,31 @@ else:
 
 ignore_folders = {".git", ".idea", "__pycache__", "node_modules", "dist", "build", "venv", "env", "temp", "tmp", "logs", "log", "data", "ui", "ui_dist", "dist"}
 
+extra_model_base_path = None
+def load_extra_model_paths():
+    global extra_model_base_path
+    yaml_path = os.path.join(comfy_path, 'extra_model_paths.yaml')
+    if not os.path.exists(yaml_path):
+        logging.warning(f"Extra model paths config file not found: {yaml_path}")
+        return
+    with open(yaml_path, 'r') as stream:
+        config = yaml.safe_load(stream)
+    for c in config:
+        conf = config[c]
+        if conf is None:
+            continue
+        
+        if "base_path" in conf:
+            extra_model_base_path = conf.pop("base_path")
+            print('extra_model_base_path', extra_model_base_path)
+
+load_extra_model_paths()
+
 @server.PromptServer.instance.routes.get('/nc_manager/list_files')
 def list_files(request):
     path = request.query.get("path", 'comfyui')
-    directory = comfy_path if path == 'comfyui' else path
+    directory = comfy_path if path == 'comfyui' else folder_paths.models_dir if path == 'models' else extra_model_base_path if path == 'extra_models' else path
+    print('directory', directory)
     files = {}
 
     def traverse_directory(dir_path):
