@@ -65,15 +65,35 @@ function FolderItem({ node }: { node: FileNode }) {
           <IconFolder size={18} />
           <p className="ml-1">{node.name}</p>
         </Flex>
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleMenu();
-          }}
-        >
-          <Button size="sm" variant="outline">
+        <div className="relative flex flex-col items-end">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleMenu();
+            }}
+          >
             <IconDotsVertical size={18} />
           </Button>
+          {isMenuVisible && (
+            <div
+              onMouseLeave={() => {
+                setIsMenuVisible(false);
+              }}
+              className="z-[10000] absolute top-full mt-1 right-0 bg-white border border-gray-200 shadow-lg rounded-md py-2 min-w-[120px]"
+            >
+              <button
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenUploadFile(true);
+                }}
+              >
+                Upload File
+              </button>
+            </div>
+          )}
         </div>
       </Flex>
       {isExpanded && node.children && (
@@ -81,23 +101,7 @@ function FolderItem({ node }: { node: FileNode }) {
           <ModelsListFileTree tree={node.children} />
         </div>
       )}
-      {isMenuVisible && (
-        <div
-          className="relative"
-          onMouseLeave={() => {
-            setIsMenuVisible(false);
-          }}
-        >
-          <div className="absolute right-0 bg-white border border-gray-200 shadow-lg rounded-md py-2">
-            <button
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => setOpenUploadFile(true)}
-            >
-              Upload File
-            </button>
-          </div>
-        </div>
-      )}
+
       {openUploadFile && (
         <InstallModelDialog
           onClose={() => setOpenUploadFile(false)}
