@@ -18,7 +18,6 @@ export function InstallModelDialog({
   path: string;
 }) {
   const [loading, setLoading] = useState(false);
-
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const onInstall = async () => {
@@ -29,7 +28,7 @@ export function InstallModelDialog({
     setLoading(true);
     const res = await uploadFile({
       folder: path,
-      name: name,
+      name: !!name.length ? name : null,
       url: url,
     });
     setLoading(false);

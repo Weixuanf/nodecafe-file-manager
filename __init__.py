@@ -55,7 +55,6 @@ load_extra_model_paths()
 async def list_files(request):
     path = request.query.get("path", 'comfyui')
     directory = comfy_path if path == 'comfyui' else folder_paths.models_dir if path == 'models' else extra_model_base_path if path == 'extra_models' else path
-    print('directory', directory)
     if not os.path.exists(directory):
         print(f"🦄🦄🔴Error: Directory not found: {directory}")
         return web.json_response(None, content_type='application/json')
@@ -102,7 +101,6 @@ async def list_files(request):
 def list_files(request):
     path = request.query.get("path", 'comfyui')
     directory = comfy_path if path == 'comfyui' else folder_paths.models_dir if path == 'models' else extra_model_base_path if path == 'extra_models' else path
-    print('directory', directory)
     files = []
 
     def traverse_directory(dir_path):
@@ -144,39 +142,57 @@ async def list_files(request):
     folder = data.get('folder')
     name = data.get('name')
     url = data.get('url')
+    
     if not folder or not url:
         return web.json_response({
             'error': 'Invalid data'
         }, content_type='application/json')
-
-    # Ensure the folder exists
-    os.makedirs(folder, exist_ok=True)
-
-    # Set up the download path or use the default remote name
+    
+    # Determine file path
     if name:
         file_path = os.path.join(folder, name)
-        curl_output_option = ['-o', file_path]
     else:
-        curl_output_option = ['-OJ']
+        file_path = folder  # If no name is provided, just use the folder
 
-    print(f"🦄⬇️Downloading file: {url} to {folder}")
+    print(f"🦄⬇️Downloading file: {url} to {file_path}")
     token = ''
-    # Download the model using curl
+    
+    # Set the token based on the URL
     if url.startswith("https://civitai.com/"):
         token = '5cb7046d212403c5ea6c19983122fe15'
     elif url.startswith("https://huggingface.co/"):
         token = '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'
+    
     try:
-        subprocess.run([
+        # Build the curl command
+        curl_command = [
             'curl',
             '-L',
-            '-#', # Progress bar
+            '-#',  # Progress bar
             '-C', '-',  # Resume capability
-            '-H', f'Authorization: Bearer {token}',
-            *curl_output_option,
-            url
-        ], check=True, cwd=folder)
-        print(f"✅ Successfully downloaded model to {folder}")
+        ]
+
+        if token:
+            curl_command += ['-H', f'Authorization: Bearer {token}']
+
+        if name:
+            curl_command += ['-o', file_path]
+        else:
+            # Change directory to the destination folder
+            curl_command += ['-O']  # Download using the default remote name
+
+        curl_command.append(url)
+        
+        # Execute the curl command
+        subprocess.Popen(curl_command, cwd=folder if not name else None)
+        
+        print(f"✅ Successfully downloaded model to {file_path}")
+        return web.json_response({
+            'message': f"Successfully downloaded model to {file_path}"
+        }, content_type='application/json')
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error downloading model from {url}")
-        raise e
+        print(f"❌ Error downloading model: {name if name else 'unknown'} from {url}")
+        return web.json_response({
+            'error': f"Error downloading model: {name if name else 'unknown'} from {url}"
+        }, content_type='application/json')
+        

@@ -10,7 +10,7 @@ export async function fetchListFiles(path: string): Promise<FileNode | null> {
 export async function uploadFile(file: {
   folder: string;
   url: string;
-  name: string;
+  name: string | null;
 }): Promise<{
   data?: {
     id: string;
