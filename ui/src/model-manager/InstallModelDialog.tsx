@@ -28,13 +28,10 @@ export function InstallModelDialog({
       alert("❌ File Name and Download URL shouldn't be empty");
       return;
     }
-    if (!api.machine?.id) {
-      alert("❌ No machine selected");
-      return;
-    }
     setLoading(true);
     const res = await uploadFile({
-      path: "comfyui",
+      folder: path,
+      name: name,
       url: url,
     });
     setLoading(false);
@@ -52,12 +49,12 @@ export function InstallModelDialog({
         !open && onClose();
       }}
     >
-      <DialogContent className="sm:max-w-[500px] z-[1005]">
+      <DialogContent className="z-[10005]">
         <DialogHeader>
           <DialogTitle>Upload File</DialogTitle>
         </DialogHeader>
         <p>
-          Upload to 📁<span className="font-mono">{path}/</span>
+          📁<span className="font-mono">{path}/</span>
         </p>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">

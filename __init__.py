@@ -52,7 +52,7 @@ def load_extra_model_paths():
 load_extra_model_paths()
 
 @server.PromptServer.instance.routes.get('/nc_manager/list_files')
-def list_files(request):
+async def list_files(request):
     path = request.query.get("path", 'comfyui')
     directory = comfy_path if path == 'comfyui' else folder_paths.models_dir if path == 'models' else extra_model_base_path if path == 'extra_models' else path
     print('directory', directory)
@@ -137,3 +137,37 @@ def list_files(request):
         'files': files,
         'root': directory
     }, content_type='application/json')
+
+@server.PromptServer.instance.routes.post('/nc_manager/upload_file')
+async def list_files(request):
+    data = await request.json()
+    folder = data.get('folder')
+    name = data.get('name')
+    url = data.get('url')
+    if not folder or not name or not url:
+        return web.json_response({
+            'error': 'Invalid data'
+        }, content_type='application/json')
+    file_path = os.path.join(folder, name)
+
+    print(f"🦄⬇️Downloading file: {url} to {file_path}")
+    token = ''
+    # Download the model using curl
+    if url.startswith("https://civitai.com/"):
+        token = '5cb7046d212403c5ea6c19983122fe15'
+    elif url.startswith("https://huggingface.co/"):
+        token = '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'
+    try:
+        subprocess.run([
+            'curl',
+            '-L',
+            '-#', # Progress bar
+            '-C', '-',  # Resume capability
+            '-H', f'Authorization: Bearer {token}',
+            '-o', file_path,
+            url
+        ], check=True)
+        print(f"✅ Successfully downloaded model to {file_path}")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error downloading model: {name} from {url}")
+        raise e

@@ -44,7 +44,7 @@ export default function ModelManagerDrawer({
         <div className="gap-5 p-5">
           <Flex className="justify-between mb-5">
             <Flex className="gap-5 items-center">
-              <h2 className="font-medium text-lg">Files</h2>
+              <h2 className="font-medium text-lg">Models</h2>
               <Button size="sm" onClick={onRefresh} isLoading={refreshing}>
                 <IconRefresh className="h-4 w-4" />
               </Button>

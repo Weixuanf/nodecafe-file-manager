@@ -7,9 +7,10 @@ export async function fetchListFiles(path: string): Promise<FileNode> {
   );
 }
 
-export async function uploadFile(model: {
-  path: string;
+export async function uploadFile(file: {
+  folder: string;
   url: string;
+  name: string;
 }): Promise<{
   data?: {
     id: string;
@@ -22,7 +23,7 @@ export async function uploadFile(model: {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({}),
+    body: JSON.stringify(file),
   })
     .then((res) => res.json())
     .then((data) => {
