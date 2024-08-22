@@ -144,13 +144,22 @@ async def list_files(request):
     folder = data.get('folder')
     name = data.get('name')
     url = data.get('url')
-    if not folder or not name or not url:
+    if not folder or not url:
         return web.json_response({
             'error': 'Invalid data'
         }, content_type='application/json')
-    file_path = os.path.join(folder, name)
 
-    print(f"🦄⬇️Downloading file: {url} to {file_path}")
+    # Ensure the folder exists
+    os.makedirs(folder, exist_ok=True)
+
+    # Set up the download path or use the default remote name
+    if name:
+        file_path = os.path.join(folder, name)
+        curl_output_option = ['-o', file_path]
+    else:
+        curl_output_option = ['-OJ']
+
+    print(f"🦄⬇️Downloading file: {url} to {folder}")
     token = ''
     # Download the model using curl
     if url.startswith("https://civitai.com/"):
@@ -164,10 +173,10 @@ async def list_files(request):
             '-#', # Progress bar
             '-C', '-',  # Resume capability
             '-H', f'Authorization: Bearer {token}',
-            '-o', file_path,
+            *curl_output_option,
             url
-        ], check=True)
-        print(f"✅ Successfully downloaded model to {file_path}")
+        ], check=True, cwd=folder)
+        print(f"✅ Successfully downloaded model to {folder}")
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error downloading model: {name} from {url}")
+        print(f"❌ Error downloading model from {url}")
         raise e

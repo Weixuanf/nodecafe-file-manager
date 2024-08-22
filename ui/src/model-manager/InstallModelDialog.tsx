@@ -7,10 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { ModelFolderSelector } from "./ModelFolderSelector";
 import { useState } from "react";
 import { uploadFile } from "./ModelManagerApi";
-import { api } from "@/comfyapp";
 
 export function InstallModelDialog({
   onClose,
@@ -24,8 +22,8 @@ export function InstallModelDialog({
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const onInstall = async () => {
-    if (!name || !url) {
-      alert("❌ File Name and Download URL shouldn't be empty");
+    if (!url) {
+      alert("❌ Download URL shouldn't be empty");
       return;
     }
     setLoading(true);

@@ -5,9 +5,7 @@ import CustomDrawer from "@/components/ui/CustomDrawer";
 import Flex from "@/components/ui/Flex";
 import { IconRefresh, IconX } from "@tabler/icons-react";
 import { fetchListFiles } from "./ModelManagerApi";
-import { InstallModelDialog } from "./InstallModelDialog";
 import ModelsListFileTree from "./ModelsListFileTree";
-import { convertToTree } from "./fileTreeUtils";
 import { FileNode } from "./types";
 
 export default function ModelManagerDrawer({
@@ -23,10 +21,7 @@ export default function ModelManagerDrawer({
     const comfyuiModels = await fetchListFiles("models");
     const extraModels = await fetchListFiles("extra_models");
     setRefreshing(false);
-    if (!comfyuiModels || !extraModels) {
-      return;
-    }
-    setModels([comfyuiModels, extraModels]);
+    setModels([comfyuiModels, extraModels].filter((x) => !!x) as FileNode[]);
     setRefreshing(false);
   };
 
