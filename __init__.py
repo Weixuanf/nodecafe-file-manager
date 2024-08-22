@@ -56,7 +56,54 @@ def list_files(request):
     path = request.query.get("path", 'comfyui')
     directory = comfy_path if path == 'comfyui' else folder_paths.models_dir if path == 'models' else extra_model_base_path if path == 'extra_models' else path
     print('directory', directory)
-    files = {}
+    if not os.path.exists(directory):
+        print(f"🦄🦄🔴Error: Directory not found: {directory}")
+        return web.json_response(None, content_type='application/json')
+
+    root = {
+        "name": directory,
+        "type": "folder",
+        "abs_path": directory,
+        "children": []
+    }
+
+    def traverse_directory(root):
+        with os.scandir(root['abs_path']) as entries:
+            for entry in entries:
+                if entry.name.startswith("."):
+                    continue
+                if entry.is_dir(follow_symlinks=False):
+                    # Check if the directory should be ignored
+                    if entry.name in ignore_folders:
+                        continue
+                    folder = {
+                        "name": entry.name,
+                        "type": "folder",
+                        "abs_path": entry.path,
+                        "children": []
+                    }
+                    traverse_directory(folder)
+                    root['children'].append(folder)
+                elif entry.is_file(follow_symlinks=False):
+                    size_bytes = entry.stat().st_size
+                    size_kb = size_bytes / 1024
+                    root['children'].append({
+                        "name": entry.name,
+                        "type": "file",
+                        "sizeB": size_bytes,
+                        "sizeKB": size_kb,
+                        "abs_path": entry.path
+                    })
+
+    traverse_directory(root)
+    return web.json_response(root, content_type='application/json')
+
+@server.PromptServer.instance.routes.get('/nc_manager/list_folder_children')
+def list_files(request):
+    path = request.query.get("path", 'comfyui')
+    directory = comfy_path if path == 'comfyui' else folder_paths.models_dir if path == 'models' else extra_model_base_path if path == 'extra_models' else path
+    print('directory', directory)
+    files = []
 
     def traverse_directory(dir_path):
         with os.scandir(dir_path) as entries:
@@ -67,16 +114,26 @@ def list_files(request):
                     # Check if the directory should be ignored
                     if entry.name in ignore_folders:
                         continue
-                    # Recursively traverse subdirectories
-                    traverse_directory(entry.path)
+                    files.append({
+                        "name": entry.name,
+                        "type": "folder",
+                        "abs_path": entry.path
+                    })
+
                 elif entry.is_file(follow_symlinks=False):
                     relative_path = os.path.relpath(entry.path, directory)
                     size_bytes = entry.stat().st_size
                     size_kb = size_bytes / 1024
-                    files[relative_path] = {
+                    files.append({
+                        "name": entry.name,
+                        "type": "file",
                         "sizeB": size_bytes,
                         "sizeKB": size_kb,
-                    }
+                        "abs_path": entry.path
+                    })
 
     traverse_directory(directory)
-    return web.json_response(files, content_type='application/json')
+    return web.json_response({
+        'files': files,
+        'root': directory
+    }, content_type='application/json')

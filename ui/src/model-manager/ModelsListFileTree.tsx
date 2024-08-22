@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Flex from "@/components/ui/Flex";
 import {
   IconChevronDown,
@@ -8,7 +8,8 @@ import {
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { InstallModelDialog } from "./InstallModelDialog";
-import { FileNode, SYS_SEP } from "./types";
+import { FileNode } from "./types";
+import { formatSize } from "./fileTreeUtils";
 
 export default function ModelsListFileTree({ tree }: { tree: FileNode[] }) {
   return (
@@ -18,7 +19,10 @@ export default function ModelsListFileTree({ tree }: { tree: FileNode[] }) {
           {file.children == null ? (
             <Flex className="justify-between flex-wrap items-center py-2">
               <div>{file.name}</div>
-              <p className="text-gray-400">{file.size}</p>
+
+              <p className="text-gray-400">
+                {formatSize(Number(file.sizeB ?? 0))}
+              </p>
             </Flex>
           ) : (
             <FolderItem node={file} />
@@ -97,7 +101,7 @@ function FolderItem({ node }: { node: FileNode }) {
       {openUploadFile && (
         <InstallModelDialog
           onClose={() => setOpenUploadFile(false)}
-          path={node.path}
+          path={node.abs_path}
         />
       )}
     </div>

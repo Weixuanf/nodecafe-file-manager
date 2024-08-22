@@ -1,12 +1,7 @@
 import { fetchApi } from "@/utils/utils";
+import { FileNode } from "./types";
 
-export async function fetchListFiles(path: string): Promise<Record<
-  string,
-  {
-    sizeB: number;
-    sizeKB: number;
-  }
-> | null> {
+export async function fetchListFiles(path: string): Promise<FileNode> {
   return await fetchApi("/nc_manager/list_files?path=" + path).then((res) =>
     res.json()
   );

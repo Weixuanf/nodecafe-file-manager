@@ -5,7 +5,7 @@ type FileNode = {
   children?: FileNode[];
 };
 
-const formatSize = (sizeB: number): string => {
+export const formatSize = (sizeB: number): string => {
   const sizeKB = sizeB / 1024;
   const sizeMB = sizeKB / 1024;
   const sizeGB = sizeMB / 1024;

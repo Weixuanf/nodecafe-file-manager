@@ -28,8 +28,9 @@ export type ComfyModelFolderName = (typeof comfyModelFolderNames)[number];
 
 export type FileNode = {
   name: string;
-  path: string;
-  size?: string;
+  abs_path: string;
+  sizeB?: string;
+  sizeKB?: string;
   children?: FileNode[];
 };
 export const SYS_SEP = "/";

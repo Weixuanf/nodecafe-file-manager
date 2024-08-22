@@ -16,31 +16,17 @@ export default function ModelManagerDrawer({
   onClose: () => void;
 }) {
   const [refreshing, setRefreshing] = useState(false);
-  const [openInstallModel, setOpenInstallModel] = useState(false);
-  const cacheKey = "machine_models_tree##" + api.machine?.id;
 
-  // useEffect(() => {
-  //   window.addEventListener("get_machine_workflow", (e: any) => {
-  //     setModels(getTreeFromSnapshot());
-  //   });
-  // }, []);
   const onRefresh = async () => {
     setRefreshing(true);
     console.log(api.machine);
     const comfyuiModels = await fetchListFiles("models");
     const extraModels = await fetchListFiles("extra_models");
     setRefreshing(false);
-
     if (!comfyuiModels || !extraModels) {
       return;
     }
-
-    const comfyuiModelsTree = convertToTree(comfyuiModels);
-    const extraModelsTree = convertToTree(extraModels);
-    setModels([
-      { name: "ComfyUI/models", children: comfyuiModelsTree, path: "models" },
-      { name: "Extra Models", children: extraModelsTree, path: "extra_models" },
-    ]);
+    setModels([comfyuiModels, extraModels]);
     setRefreshing(false);
   };
 
