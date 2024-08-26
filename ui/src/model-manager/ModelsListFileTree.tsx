@@ -11,7 +11,13 @@ import { InstallModelDialog } from "./InstallModelDialog";
 import { FileNode } from "./types";
 import { formatSize } from "./fileTreeUtils";
 
-export default function ModelsListFileTree({ tree }: { tree: FileNode[] }) {
+export default function ModelsListFileTree({
+  tree,
+  onRefresh,
+}: {
+  tree: FileNode[];
+  onRefresh: () => void;
+}) {
   return (
     <div style={{ fontSize: "1rem" }}>
       {tree.map((file) => (
@@ -25,7 +31,7 @@ export default function ModelsListFileTree({ tree }: { tree: FileNode[] }) {
               </p>
             </Flex>
           ) : (
-            <FolderItem node={file} />
+            <FolderItem node={file} onRefresh={onRefresh} />
           )}
         </div>
       ))}
@@ -33,7 +39,13 @@ export default function ModelsListFileTree({ tree }: { tree: FileNode[] }) {
   );
 }
 
-function FolderItem({ node }: { node: FileNode }) {
+function FolderItem({
+  node,
+  onRefresh,
+}: {
+  node: FileNode;
+  onRefresh: () => void;
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [openUploadFile, setOpenUploadFile] = useState(false);
@@ -92,13 +104,32 @@ function FolderItem({ node }: { node: FileNode }) {
               >
                 Upload File
               </button>
+              <button
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const folderName = prompt("Enter folder name");
+                  if (folderName) {
+                    await fetch(`/nc_manager/create_folder`, {
+                      method: "POST",
+                      body: JSON.stringify({
+                        folder: node.abs_path,
+                        name: folderName,
+                      }),
+                    });
+                    onRefresh();
+                  }
+                }}
+              >
+                New Folder
+              </button>
             </div>
           )}
         </div>
       </Flex>
       {isExpanded && node.children && (
         <div className="pl-5">
-          <ModelsListFileTree tree={node.children} />
+          <ModelsListFileTree tree={node.children} onRefresh={onRefresh} />
         </div>
       )}
 

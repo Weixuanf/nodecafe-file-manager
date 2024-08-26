@@ -51,7 +51,7 @@ export default function ModelManagerDrawer({
               <IconX className="h-4 w-4" />
             </Button>
           </Flex>
-          <ModelsListFileTree tree={models} />
+          <ModelsListFileTree tree={models} onRefresh={onRefresh} />
         </div>
       </CustomDrawer>
     </>

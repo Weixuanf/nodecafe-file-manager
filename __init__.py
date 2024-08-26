@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 import server
 from aiohttp import web
 import folder_paths
@@ -196,3 +197,28 @@ async def list_files(request):
             'error': f"Error downloading model: {name if name else 'unknown'} from {url}"
         }, content_type='application/json')
         
+@server.PromptServer.instance.routes.post('/nc_manager/create_folder')
+async def create_folder(request):
+    data = await request.json()
+    folder = data.get('folder')
+    name = data.get('name')
+    
+    if not folder or not name:
+        return web.json_response({
+            'error': 'Invalid data'
+        }, content_type='application/json')
+    
+    new_folder_path = os.path.join(folder, name)
+    
+    try:
+        os.makedirs(new_folder_path, exist_ok=True)
+        print(f"✅ Successfully created folder: {new_folder_path}")
+        return web.json_response({
+            'message': f"Successfully created folder: {new_folder_path}"
+        }, content_type='application/json')
+    except Exception as e:
+        logging.error(f"Error creating folder: {new_folder_path}", e)
+        traceback.print_exc()
+        return web.json_response({
+            'error': f"Error creating folder: {new_folder_path}"
+        }, content_type='application/json')
