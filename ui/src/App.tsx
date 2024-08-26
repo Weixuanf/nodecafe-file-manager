@@ -1,27 +1,24 @@
 import ReactDOM from "react-dom";
 import "./App.css";
-import WorkflowManagerTopbar from "./workflow-manager/WorkflowManagerTopbar";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { waitForApp } from "./comfyapp";
 import { ThemeProvider } from "./components/theme-provider";
-import JobManagerTopbar from "./model-manager/JobManagerTopbar";
 import { SWRConfig } from "swr";
 import { swrLocalStorageProvider } from "./utils/swrFetcher";
-import ProfileTopbar from "./user-manager/ProfileTopbar";
-import { ComfyUser } from "./type/dbTypes";
-import Flex from "./components/ui/Flex";
 const ModelManagerTopbar = lazy(
   () => import("./model-manager/ModelManagerTopbar")
 );
 
-const topMenu = document.getElementsByClassName("comfyui-menu").item(0);
-
-const menuPush = document.getElementsByClassName("comfyui-menu-push").item(0);
-
-const leftMenu = document.createElement("div");
+let menuPush = document.getElementsByClassName("comfyui-menu-push").item(0);
+if (!menuPush) {
+  menuPush = document.createElement("div");
+  menuPush.setAttribute(
+    "style",
+    "position: fixed; top: 0; left: 2; z-index: 1000;"
+  );
+  document.body.appendChild(menuPush);
+}
 const middleMenu = document.createElement("div");
-
-topMenu?.prepend(leftMenu);
 menuPush?.append(middleMenu);
 
 function App() {

@@ -222,3 +222,15 @@ async def create_folder(request):
         return web.json_response({
             'error': f"Error creating folder: {new_folder_path}"
         }, content_type='application/json')
+
+@server.PromptServer.instance.routes.get('/nc_manager/get_logs')
+async def get_logs(request):
+    log_path = '/comfyui.log'
+    if not os.path.exists(log_path):
+        log_path = os.path.join(comfy_path, 'comfyui.log')
+    if not os.path.exists(log_path):
+        return web.Response(text='Logs file not found', content_type='text/plain')
+
+    with open(log_path, 'r') as f:
+        logs = f.read()
+    return web.Response(text=logs, content_type='text/plain')
