@@ -23,11 +23,6 @@ menuPush?.append(middleMenu);
 
 function App() {
   const [finishLoading, setFinishLoading] = useState(false);
-  const myQueueButtonDiv = document.createElement("div");
-  const queueButtonDiv = document
-    .getElementsByClassName("comfyui-queue-button")
-    .item(0);
-  queueButtonDiv?.replaceWith(myQueueButtonDiv);
 
   useEffect(() => {
     if (import.meta.env.DEV) {

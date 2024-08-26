@@ -8,8 +8,8 @@ import {
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { InstallModelDialog } from "./InstallModelDialog";
-import { FileNode } from "./types";
 import { formatSize } from "./fileTreeUtils";
+import { FileNode } from "./types";
 
 export default function ModelsListFileTree({
   tree,
