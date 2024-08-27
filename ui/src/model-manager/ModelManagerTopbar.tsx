@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { api, app } from "../comfyapp";
 import { Button } from "@/components/ui/button";
 import Flex from "@/components/ui/Flex";
 import ModelManagerDrawer from "./ModelManagerDrawer";
