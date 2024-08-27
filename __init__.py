@@ -275,36 +275,27 @@ async def update_custom_node(request):
     if not path:
         return web.Response(text='Invalid data', content_type='text/plain')
     print(f"🦄⬇️Updating custom node: {path}")
-    # run git pull on path
-    subprocess.run(
-        ['git', '-C', path, 'pull'],
-        stdout=None,
-        stderr=None,
-        text=True,
-        check=True,
-        bufsize=1
-    )
-    # install requirements.txt
+
+    loop = asyncio.get_event_loop()
+
+    def run_subprocess(commands):
+        for command in commands:
+            subprocess.run(command, stdout=None, stderr=None, text=True, bufsize=1)
+
+    commands = [
+        ['git', '-C', path, 'pull']
+    ]
+
     if os.path.exists(os.path.join(path, 'requirements.txt')):
         print(f"🦄⬇️Installing requirements: {os.path.join(path, 'requirements.txt')}")
-        subprocess.run(
-            ['pip', 'install', '-r', os.path.join(path, 'requirements.txt')],
-            stdout=None,
-            stderr=None,
-            text=True,
-            check=True,
-            bufsize=1
-        )  
+        commands.append(['pip', 'install', '-r', os.path.join(path, 'requirements.txt')])
+
     if os.path.exists(os.path.join(path, 'install.py')):
         print(f"🦄⬇️Running install.py: {os.path.join(path, 'install.py')}")
-        subprocess.run(
-            ['python', '-u', os.path.join(path, 'install.py')],
-            stdout=None,
-            stderr=None,
-            text=True,
-            check=True,
-            bufsize=1
-        )
+        commands.append(['python', '-u', os.path.join(path, 'install.py')])
+
+    await loop.run_in_executor(ThreadPoolExecutor(), run_subprocess, commands)
+
     print(f"✅ Successfully updated custom node: {path}")
     return web.Response(text='Successfully updated custom node', content_type='text/plain')
 
