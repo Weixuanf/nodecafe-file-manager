@@ -1,4 +1,5 @@
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import traceback
 import server
 from aiohttp import web
@@ -28,7 +29,7 @@ if os.path.exists(dist_path):
         web.static('/model_manager_dist/', dist_path),
     ])
 else:
-    print(f"🦄🦄🔴🔴Error: Web directory not found: {dist_path}")
+    print(f"🔴🔴[nodecafe-file-manager] Error: Web directory not found: {dist_path}")
 
 ignore_folders = {".git", ".idea", "__pycache__", "node_modules", "dist", "build", "venv", "env", "temp", "tmp", "logs", "log", "data", "ui", "ui_dist", "dist"}
 
@@ -225,12 +226,86 @@ async def create_folder(request):
 
 @server.PromptServer.instance.routes.get('/nc_manager/get_logs')
 async def get_logs(request):
+    loop = asyncio.get_event_loop()
     log_path = '/comfyui.log'
     if not os.path.exists(log_path):
         log_path = os.path.join(comfy_path, 'comfyui.log')
     if not os.path.exists(log_path):
         return web.Response(text='Logs file not found', content_type='text/plain')
 
-    with open(log_path, 'r') as f:
-        logs = f.read()
+    def read_logs():
+        with open(log_path, 'r') as f:
+            return f.read()
+
+    logs = await loop.run_in_executor(ThreadPoolExecutor(), read_logs)
     return web.Response(text=logs, content_type='text/plain')
+
+@server.PromptServer.instance.routes.get('/nc_manager/list_custom_nodes')
+async def list_custom_nodes(request):
+    custom_nodes_path = os.path.join(comfy_path, 'custom_nodes')
+    if not os.path.exists(custom_nodes_path):
+        return web.json_response([], content_type='application/json')
+    custom_nodes = []
+    with os.scandir(custom_nodes_path) as entries:
+        for entry in entries:
+            if entry.is_dir(follow_symlinks=False):
+                git_url = None
+                try:
+                    result = subprocess.run(
+                        ['git', '-C', entry.path, 'config', '--get', 'remote.origin.url'],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    git_url = result.stdout
+                except Exception as e:
+                    git_url = None
+                
+                custom_nodes.append({
+                    'name': entry.name,
+                    'path': entry.path,
+                    'git_url': git_url
+                })
+    return web.json_response(custom_nodes, content_type='application/json')
+
+@server.PromptServer.instance.routes.post('/nc_manager/update_custom_node')
+async def update_custom_node(request):
+    data = await request.json()
+    path = data.get('path')
+    if not path:
+        return web.Response(text='Invalid data', content_type='text/plain')
+    print(f"🦄⬇️Updating custom node: {path}")
+    # run git pull on path
+    subprocess.run(
+        ['git', '-C', path, 'pull'],
+        stdout=None,
+        stderr=None,
+        text=True,
+        check=True,
+        bufsize=1
+    )
+    # install requirements.txt
+    if os.path.exists(os.path.join(path, 'requirements.txt')):
+        print(f"🦄⬇️Installing requirements: {os.path.join(path, 'requirements.txt')}")
+        subprocess.run(
+            ['pip', 'install', '-r', os.path.join(path, 'requirements.txt')],
+            stdout=None,
+            stderr=None,
+            text=True,
+            check=True,
+            bufsize=1
+        )  
+    if os.path.exists(os.path.join(path, 'install.py')):
+        print(f"🦄⬇️Running install.py: {os.path.join(path, 'install.py')}")
+        subprocess.run(
+            ['python', '-u', os.path.join(path, 'install.py')],
+            stdout=None,
+            stderr=None,
+            text=True,
+            check=True,
+            bufsize=1
+        )
+    print(f"✅ Successfully updated custom node: {path}")
+    return web.Response(text='Successfully updated custom node', content_type='text/plain')
+
+ 
