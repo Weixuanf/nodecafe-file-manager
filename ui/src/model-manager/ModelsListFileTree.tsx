@@ -23,7 +23,7 @@ export default function ModelsListFileTree({
       {tree.map((file) => (
         <div key={file.name}>
           {file.children == null ? (
-            <Flex className="justify-between flex-wrap items-center py-2">
+            <Flex className="justify-between flex-wrap items-center py-2 hover:bg-gray-800">
               <div>{file.name}</div>
 
               <p className="text-gray-400">
@@ -65,7 +65,7 @@ function FolderItem({
       }}
     >
       <Flex
-        className="items-center justify-between gap-1 cursor-pointer py-2 text-white"
+        className="items-center justify-between gap-1 cursor-pointer py-2 text-white hover:bg-gray-800"
         onClick={toggleExpand}
       >
         <Flex>
