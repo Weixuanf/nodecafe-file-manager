@@ -5,6 +5,8 @@ import { useState } from "react";
 export default function RestartButton({ className }: { className?: string }) {
   const [isRestarting, setIsRestarting] = useState(false);
   const onRestart = () => {
+    const confirmed = confirm("Are you sure you want to restart the server?");
+    if (!confirmed) return;
     setIsRestarting(true);
     fetchApi("/manager/reboot");
     // continuously check if the server is running
