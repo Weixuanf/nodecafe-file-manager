@@ -111,7 +111,6 @@ def list_files(request):
                 if entry.name.startswith("."):
                     continue
                 if entry.is_dir(follow_symlinks=False):
-                    # Check if the directory should be ignored
                     if entry.name in ignore_folders:
                         continue
                     files.append({
@@ -249,6 +248,8 @@ async def list_custom_nodes(request):
     with os.scandir(custom_nodes_path) as entries:
         for entry in entries:
             if entry.is_dir(follow_symlinks=False):
+                if entry.name in ignore_folders:
+                    continue
                 git_url = None
                 try:
                     result = subprocess.run(
