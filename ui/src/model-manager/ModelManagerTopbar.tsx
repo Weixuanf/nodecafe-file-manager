@@ -4,6 +4,7 @@ import Flex from "@/components/ui/Flex";
 import ModelManagerDrawer from "./ModelManagerDrawer";
 import { IconScript } from "@tabler/icons-react";
 import LogsDrawer from "./LogsDrawer";
+import RestartButton from "@/restart/RestartButton";
 
 export default function ModelManagerTopbar({
   className,
@@ -36,6 +37,7 @@ export default function ModelManagerTopbar({
         <IconScript className="h-4 w-4" />
         <span className="ml-1">Logs</span>
       </Button>
+      <RestartButton className="ml-2" />
     </Flex>
   );
 }
