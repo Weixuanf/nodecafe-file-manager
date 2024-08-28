@@ -11,7 +11,7 @@ ReactDOM.createRoot(topbar).render(
     <App />
   </React.StrictMode>
 );
-// @ts-ignore
-const api = window.comfyAPI.api.api;
 
-injectCSS(api.api_base + "/model_manager_dist/input.css");
+const api_base =
+  window.location?.pathname?.split("/")?.slice(0, -1)?.join("/") ?? "";
+injectCSS(api_base + "/model_manager_dist/input.css");
