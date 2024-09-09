@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import Flex from "@/components/ui/Flex";
 import ModelManagerDrawer from "./ModelManagerDrawer";
 import RestartButton from "@/restart/RestartButton";
-import LogsButton from "./LogsButton";
 
 export default function ModelManagerTopbar({
   className,
@@ -23,7 +22,6 @@ export default function ModelManagerTopbar({
       >
         Models
       </Button>
-      <LogsButton />
       <RestartButton className="ml-2" />
     </Flex>
   );
