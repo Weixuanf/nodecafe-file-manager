@@ -223,6 +223,22 @@ async def create_folder(request):
             'error': f"Error creating folder: {new_folder_path}"
         }, content_type='application/json')
 
+@server.PromptServer.instance.routes.post('/nc_manager/delete_file')
+async def delete_file(request):
+    data = await request.json()
+    path = data.get('path')
+    
+    if not path:
+        return web.json_response({
+            'error': 'Invalid data'
+        }, content_type='application/json')
+
+    os.remove(path)
+    print(f"Deleted file: {path}")
+    return web.json_response({
+        'message': f"Successfully deleted file: {path}"
+    }, content_type='application/json')
+
 @server.PromptServer.instance.routes.get('/nc_manager/get_logs')
 async def get_logs(request):
     loop = asyncio.get_event_loop()

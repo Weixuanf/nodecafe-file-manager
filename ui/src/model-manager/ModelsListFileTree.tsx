@@ -8,8 +8,9 @@ import {
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { InstallModelDialog } from "./InstallModelDialog";
-import { formatSize } from "./fileTreeUtils";
 import { FileNode } from "./types";
+import ModelsListFileTreeFileItem from "./ModelsListFileTreeFileItem";
+import { fetchApi } from "@/utils/utils";
 
 export default function ModelsListFileTree({
   tree,
@@ -23,13 +24,7 @@ export default function ModelsListFileTree({
       {tree.map((file) => (
         <div key={file.name}>
           {file.children == null ? (
-            <Flex className="justify-between flex-wrap items-center py-2 hover:bg-gray-800">
-              <div>{file.name}</div>
-
-              <p className="text-gray-400">
-                {formatSize(Number(file.sizeB ?? 0))}
-              </p>
-            </Flex>
+            <ModelsListFileTreeFileItem file={file} onDeleted={onRefresh} />
           ) : (
             <FolderItem node={file} onRefresh={onRefresh} />
           )}
@@ -110,7 +105,7 @@ function FolderItem({
                   e.stopPropagation();
                   const folderName = prompt("Enter folder name");
                   if (folderName) {
-                    await fetch(`/nc_manager/create_folder`, {
+                    await fetchApi(`/nc_manager/create_folder`, {
                       method: "POST",
                       body: JSON.stringify({
                         folder: node.abs_path,
